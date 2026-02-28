@@ -1,6 +1,8 @@
 import * as anchor from "@coral-xyz/anchor";
 import { BN, Program, web3 } from "@coral-xyz/anchor";
 import fs from "fs";
+import path from "path";
+import os from "os";
 
 import { Keypair, Connection, PublicKey, Transaction } from "@solana/web3.js";
 
@@ -57,8 +59,12 @@ export const setClusterConfig = async (
     solConnection = new web3.Connection(rpc);
   }
 
+  const keypairPath = keypair.startsWith("~")
+    ? path.join(os.homedir(), keypair.slice(1))
+    : path.resolve(keypair);
+
   const walletKeypair = Keypair.fromSecretKey(
-    Uint8Array.from(JSON.parse(fs.readFileSync(keypair, "utf-8"))),
+    Uint8Array.from(JSON.parse(fs.readFileSync(keypairPath, "utf-8"))),
     { skipValidation: true }
   );
   payer = new NodeWallet(walletKeypair);

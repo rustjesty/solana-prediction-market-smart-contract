@@ -1,48 +1,35 @@
-# Prediction Market Smart Contract · Polymarket Smart Contract on Solana
+# Solana Prediction Market Smart Contract
 
-**Prediction market smart contract** on Solana — **Polymarket-style** **prediction market** platform. **Polymarket smart contract** and **prediction market Solana smart contract** for creating markets, trading Yes/No positions, and resolving outcomes. Build a **Polymarket Solana smart contract** or adapt patterns for **prediction market EVM smart contract** / **Polymarket EVM smart contract**.
+A decentralized prediction market smart contract on Solana, inspired by Polymarket. Create markets, trade Yes/No positions, and resolve outcomes—all on-chain.
 
-## About this repository
+## Overview
 
-**Polymarket smart contract** · **Prediction market smart contract** · **Prediction market** · **Polymarket** · **Polymarket Solana smart contract** · **Prediction market Solana smart contract**. Decentralized **prediction market** on Solana inspired by **Polymarket**. Create markets, add liquidity, trade positions, resolve outcomes. **Prediction market smart contract** built with Anchor; patterns extend to **Polymarket EVM smart contract** / **prediction market EVM smart contract** for multi-chain.
-
-## Contact
-
-If you have any questions or would like a more customized app for specific use cases, please feel free to contact us at the contact information below.
-- [Discord](https://discordapp.com/users/645723465831415817)
-- [Telegram](https://t.me/soljesty)
+This project provides a full-featured prediction market built with the Anchor framework. Users can create binary outcome markets for any event, add liquidity, trade positions using Yes/No SPL tokens, and resolve markets based on real-world outcomes. The architecture is modular and the patterns can be adapted for EVM chains.
 
 ## Features
 
-- **Prediction market smart contract** / **Polymarket smart contract**: Create **prediction market** markets for any event (Polymarket-style)
-- **Polymarket Solana smart contract** / **Prediction market Solana smart contract**: Full lifecycle on Solana — create, trade, resolve
-- **Liquidity Provision**: Add and withdraw liquidity to markets
-- **Trading**: Trade positions using Yes/No tokens
-- **Market Resolution**: Automatic resolution based on final outcomes
-- **Fee Structure**: Platform and LP fees for sustainable operations
-- **Extensible**: Same **prediction market** patterns can power **Polymarket EVM smart contract** / **prediction market EVM smart contract** on EVM chains
+- **Market Creation** — Create binary outcome markets for any event
+- **Liquidity Provision** — Add and withdraw liquidity to support trading
+- **Trading** — Trade positions using Yes/No tokens
+- **Market Resolution** — Resolve markets based on final outcomes with automatic payouts
+- **Fee Structure** — Configurable platform and LP fees
+- **Extensible** — Clear patterns for adapting to other chains
 
-## Architecture
+## Tech Stack
 
-This **prediction market smart contract** (**Polymarket Solana smart contract**) is built using:
-
-- Solana Web3.js
-- Anchor Framework
+- [Anchor](https://www.anchor-lang.com/) — Solana smart contract framework
+- [Solana Web3.js](https://solana-labs.github.io/solana-web3.js/) — JavaScript SDK
 - SPL Token Program
 - Associated Token Program
 
-Use as a **Polymarket smart contract** on Solana or as reference for **prediction market EVM smart contract** / **Polymarket EVM smart contract** implementations.
-
-## Getting Started — run the prediction market smart contract
-
-### Prerequisites
+## Prerequisites
 
 - Node.js
 - Yarn
-- Solana CLI
-- Anchor Framework
+- [Solana CLI](https://docs.solana.com/cli/install-solana-cli-tools)
+- [Anchor Framework](https://www.anchor-lang.com/docs/installation)
 
-### Installation
+## Installation
 
 1. Clone the repository:
 
@@ -63,67 +50,61 @@ yarn install
 anchor build
 ```
 
-### Configuration
+## Configuration
 
-Configure your project settings:
+Configure environment, keypair, and RPC URL:
 
 ```bash
 yarn script config -e devnet -k <your-keypair-path> -r <your-rpc-url>
 ```
 
-### Usage Examples
+## Usage
 
-1. Create a new market:
+### Create a Market
 
 ```bash
 yarn script market -e devnet -k <your-keypair-path> -r <your-rpc-url>
 ```
 
-2. Add liquidity to a market:
+### Add Liquidity
 
 ```bash
 yarn script addlp -y <yes-token-address> -n <no-token-address> -a <amount> -e devnet -k <your-keypair-path> -r <your-rpc-url>
 ```
 
-3. Trade positions:
+### Trade Positions
 
 ```bash
 yarn script swap -y <yes-token-address> -n <no-token-address> -a <amount> -s <style> -t <token-type> -e devnet -k <your-keypair-path> -r <your-rpc-url>
 ```
 
-4. Withdraw liquidity:
+### Withdraw Liquidity
 
 ```bash
 yarn script withdraw -y <yes-token-address> -n <no-token-address> -a <amount> -e devnet -k <your-keypair-path> -r <your-rpc-url>
 ```
 
-5. Resolve market:
+### Resolve Market
 
 ```bash
 yarn script resolution -y <yes-token-address> -n <no-token-address> -e devnet -k <your-keypair-path> -r <your-rpc-url>
 ```
 
+## Example Transaction
 
+[Config transaction on Solscan (Devnet)](https://solscan.io/tx/3Ww7gCeEPWRkAG6iXgNhgr5EEy1WAbaRjBFbRrEBFRsQywFaeFLDciTD2VLN1oHdhKv5sW8UsvxFSA8ie1soW4w?cluster=custom&customUrl=https://api.devnet.solana.com)
 
-## Keywords (SEO)
+## Contact
 
-- **Polymarket smart contract** – **Polymarket smart contract** on Solana; Polymarket-style **prediction market**.
-- **Prediction market smart contract** – **Prediction market smart contract** for create, trade, resolve; **prediction market Solana smart contract** in this repo.
-- **Prediction market** – **Prediction market** platform on Solana; inspired by **Polymarket**.
-- **Polymarket** – **Polymarket**-inspired **prediction market smart contract** on Solana.
-- **Polymarket Solana smart contract** – **Polymarket Solana smart contract** = this **prediction market smart contract** on Solana.
-- **Prediction market Solana smart contract** – **Prediction market Solana smart contract** built with Anchor; Yes/No tokens, liquidity, resolution.
-- **Polymarket EVM smart contract** / **Prediction market EVM smart contract** – Same **prediction market** logic can be implemented on EVM; this repo is Solana reference.
-- Related: polymarket smart contract, prediction market smart contract, polymarket, prediction market, polymarket solana, prediction market solana, polymarket evm, prediction market evm.
+For questions or custom implementations:
+
+- [Discord](https://discordapp.com/users/645723465831415817)
+- [Telegram](https://t.me/soljesty)
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome. Please open an issue or submit a pull request.
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
-
----
-
-**Git repo About (copy for description):** Polymarket smart contract · Prediction market smart contract · Prediction market · Polymarket. Polymarket Solana smart contract and prediction market Solana smart contract on Solana (Anchor). Create, trade, resolve. Patterns for Polymarket EVM smart contract / prediction market EVM smart contract.
+MIT — see [LICENSE](LICENSE) for details.

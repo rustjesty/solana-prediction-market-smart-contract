@@ -188,7 +188,7 @@ function programCommand(name: string) {
     .option(
       "-k, --keypair <string>",
       "Solana wallet Keypair Path",
-      "./keys/EgBcC7KVQTh1QeU3qxCFsnwZKYMMQkv6TzgEDkKvSNLv.json"
+      "~/.config/solana/id.json"
     );
 }
 
