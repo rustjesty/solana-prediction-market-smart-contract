@@ -111,11 +111,13 @@ yarn script resolution -y <yes-token-address> -n <no-token-address> -e devnet -k
 [No Token (Devnet)](https://solscan.io/token/46QbL8d5sXqP2MuhQwx9fp9HbinxghQXZ9mEcSpR85Pf?cluster=custom&customUrl=https://api.devnet.solana.com)
 
 [Add Liquidity(Devnet)](https://solscan.io/tx/4YsVBzHuur9GSVz5VSe8yLBkY8VQniYqrYqUv3AvTRjENr979d98Hzg8x8iEFnBqGqNiwHhDDEwFjMbjMg4629bR?cluster=custom&customUrl=https://api.devnet.solana.com)
+
+[Resolution (Devnet)](https://solscan.io/tx/4v1EmxYQwpXGX4Q48uGKLdfE9Kairg7gC35cDqe291miFH7LQVn3Vj4JD9ffoVDXsjdMWabR9YMtfQ92fDDTR5Rg?cluster=custom&customUrl=https://api.devnet.solana.com)
 <!-- 
 yarn script addlp -y 9uamipGwBUiDYiDSq9UeMpKFCRbMhd2cewxU7SUYyaKV -n 46QbL8d5sXqP2MuhQwx9fp9HbinxghQXZ9mEcSpR85Pf -a 2000000000
 yarn script withdraw -y 9uamipGwBUiDYiDSq9UeMpKFCRbMhd2cewxU7SUYyaKV -n 46QbL8d5sXqP2MuhQwx9fp9HbinxghQXZ9mEcSpR85Pf -a 2000000000
-yarn script swap -y A5LmU5ZciBaJZKT9u59tasTDNrdMpGAo4WkGhmTkoBBA -n 9jnqZhBjuAjmj6qwmGBAm7ftok437prs6WkgcfLnKzrr -a 2000000000 -s 0 -t 1
-yarn script resolution -y A5LmU5ZciBaJZKT9u59tasTDNrdMpGAo4WkGhmTkoBBA -n 9jnqZhBjuAjmj6qwmGBAm7ftok437prs6WkgcfLnKzrr
+yarn script swap -y 9uamipGwBUiDYiDSq9UeMpKFCRbMhd2cewxU7SUYyaKV -n 46QbL8d5sXqP2MuhQwx9fp9HbinxghQXZ9mEcSpR85Pf -a 2000000000 -s 0 -t 1
+yarn script resolution -y 9uamipGwBUiDYiDSq9UeMpKFCRbMhd2cewxU7SUYyaKV -n 46QbL8d5sXqP2MuhQwx9fp9HbinxghQXZ9mEcSpR85Pf
  -->
 
 
