@@ -4,7 +4,7 @@ use crate::{
     state::{config::*, market::*},
 };
 use anchor_lang::{prelude::*, solana_program::sysvar::SysvarId, system_program};
-use anchor_spl::token::{Mint, Token};
+use anchor_spl::token::{self, Mint, Token};
 
 #[derive(Accounts)]
 pub struct CreateMarket<'info> {
@@ -62,12 +62,27 @@ pub struct CreateMarket<'info> {
 }
 
 impl<'info> CreateMarket<'info> {
-    pub fn handler(&mut self, params: CreateMarketParams, global_vault_bump: u8) -> Result<()> {
+    pub fn handler(&mut self, params: CreateMarketParams, _global_vault_bump: u8) -> Result<()> {
         msg!("CreateMarket start");
 
-        //A decentralized prediction market platform built on Solana blockchain, inspired by Polymarket. This project enables users to create markets, trade positions, and resolve outcomes based on real-world events.    
-        // **Telegram**: [@Telegram](https://t.me/xAxon7)
-        // **Discord**: [@Discord](https://discord.com/users/1274339638668038187)
+        let initial_reserves = self.global_config.initial_real_token_reserves_config;
+
+        self.market.yes_token_mint = self.yes_token.key();
+        self.market.no_token_mint = self.no_token.key();
+        self.market.creator = self.creator.key();
+        self.market.initial_yes_token_reserves = initial_reserves;
+        self.market.real_yes_token_reserves = initial_reserves;
+        self.market.real_yes_sol_reserves = 0;
+        self.market.token_yes_total_supply = 0;
+        self.market.initial_no_token_reserves = self.global_config.token_supply_config;
+        self.market.real_no_token_reserves = self.global_config.token_supply_config;
+        self.market.real_no_sol_reserves = 0;
+        self.market.token_no_total_supply = self.global_config.token_supply_config;
+        self.market.is_completed = false;
+        self.market.start_slot = params.start_slot;
+        self.market.ending_slot = params.ending_slot;
+        self.market.lps = vec![];
+        self.market.total_lp_amount = 0;
 
         Ok(())
     }
