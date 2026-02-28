@@ -1,228 +1,129 @@
-## Solana Prediction Market Smart Contract
+# Prediction Market Smart Contract · Polymarket Smart Contract on Solana
 
-This folder contains the **Solana / Anchor smart contract** for a per‑ball cricket prediction market. It is a SOL‑only program that lets users bet on the next‑ball outcome of a cricket match, with protocol fees paid to a treasury and proportional payouts to winners.
+**Prediction market smart contract** on Solana — **Polymarket-style** **prediction market** platform. **Polymarket smart contract** and **prediction market Solana smart contract** for creating markets, trading Yes/No positions, and resolving outcomes. Build a **Polymarket Solana smart contract** or adapt patterns for **prediction market EVM smart contract** / **Polymarket EVM smart contract**.
 
-Program ID (devnet/localnet, from `lib.rs` / `Anchor.toml`):
+## About this repository
 
-- `Hj24gW6VcCypDoZAGNKyYDKHPnFEqnhcdQu8mqDBKQiG`
+**Polymarket smart contract** · **Prediction market smart contract** · **Prediction market** · **Polymarket** · **Polymarket Solana smart contract** · **Prediction market Solana smart contract**. Decentralized **prediction market** on Solana inspired by **Polymarket**. Create markets, add liquidity, trade positions, resolve outcomes. **Prediction market smart contract** built with Anchor; patterns extend to **Polymarket EVM smart contract** / **prediction market EVM smart contract** for multi-chain.
 
----
+## Contact
 
-### Core Design
+If you have any questions or would like a more customized app for specific use cases, please feel free to contact us at the contact information below.
+- [Discord](https://discordapp.com/users/645723465831415817)
+- [Telegram](https://t.me/soljesty)
 
-- **Per‑ball markets**:  
-  Each market represents a single ball in a cricket match and is uniquely identified by:
-  - `match_id: [u8; 32]` — external match identity (e.g. derived from Sportradar match ID or your own backend ID).
-  - `over: u16`
-  - `ball: u16`
-  - `market_id: [u8; 32]` — **canonical ID**, computed **on‑chain** as:
-    - `market_id = sha256(match_id || over_le || ball_le)`
-  The program **recomputes and validates** this hash in `create_market` to prevent arbitrary or duplicate IDs.
+## Features
 
-- **Supported outcomes** (for next‑ball cricket markets):  
-  The program is outcome‑agnostic at the protocol level and uses `outcome_count: u8` to size arrays. A typical frontend/backend configuration for cricket is:
-  - Run values: `0, 1, 2, 3, 4, 6`
-  - Extras / dismissals: `WICKET`, `NO_BALL`, `WIDE` (and optionally `FREE_HIT`)
-  These are represented as small `u8` codes, and stakes are tracked per outcome index.
+- **Prediction market smart contract** / **Polymarket smart contract**: Create **prediction market** markets for any event (Polymarket-style)
+- **Polymarket Solana smart contract** / **Prediction market Solana smart contract**: Full lifecycle on Solana — create, trade, resolve
+- **Liquidity Provision**: Add and withdraw liquidity to markets
+- **Trading**: Trade positions using Yes/No tokens
+- **Market Resolution**: Automatic resolution based on final outcomes
+- **Fee Structure**: Platform and LP fees for sustainable operations
+- **Extensible**: Same **prediction market** patterns can power **Polymarket EVM smart contract** / **prediction market EVM smart contract** on EVM chains
 
-- **Escrow and payouts**:
-  - Each market has a **vault PDA** that holds all staked SOL.
-  - Bets transfer SOL from the user to the vault.
-  - On resolve, the program:
-    - Calculates the **protocol fee** (basis points from global config).
-    - Locks in a **resolved pool after fee**.
-    - Later, `claim` pays each winner their share of this pool, proportional to their stake on the winning outcome.
+## Architecture
 
----
+This **prediction market smart contract** (**Polymarket Solana smart contract**) is built using:
 
-### Accounts
+- Solana Web3.js
+- Anchor Framework
+- SPL Token Program
+- Associated Token Program
 
-- **Config (PDA: `["config"]`)**
-  - Global, singleton configuration for the program.
-  - Fields (key ones):
-    - `authority: Pubkey` — admin that can change config.
-    - `treasury: Pubkey` — protocol fee recipient.
-    - `protocol_fee_bps: u16` — fee in basis points (capped in code).
-    - `resolution_authority: Pubkey` — address allowed to resolve markets.
-    - `paused: bool` — if true, betting is disabled.
-    - `initialized: bool` — safety flag to prevent re‑init.
+Use as a **Polymarket smart contract** on Solana or as reference for **prediction market EVM smart contract** / **Polymarket EVM smart contract** implementations.
 
-- **Market (PDA: `["market", market_id]`)**
-  - Represents a single per‑ball market.
-  - Key fields:
-    - `market_id: [u8; 32]` — canonical ID (hash of match + over + ball).
-    - `match_id: [u8; 32]`
-    - `over: u16`
-    - `ball: u16`
-    - `name: [u8; MAX_MARKET_NAME_LEN]` + `name_len: u8`
-    - `outcome_count: u8`
-    - `vault: Pubkey` — PDA holding escrow lamports.
-    - `total_stake_per_outcome: [u64; MAX_OUTCOMES]`
-    - `total_stake: u64`
-    - `resolved_outcome: Option<u8>`
-    - `resolved_pool_after_fee: u64`
-    - `resolved: bool`
+## Getting Started — run the prediction market smart contract
 
-- **UserStake (PDA: `["stake", user, market]`)**
-  - Per‑user, per‑market stake account.
-  - Fields:
-    - `user: Pubkey`
-    - `market: Pubkey`
-    - `stake_per_outcome: [u64; MAX_OUTCOMES]`
-    - `total_staked: u64`
-    - `claimed: bool` — prevents double claim.
+### Prerequisites
 
-- **Vault (PDA: `["vault", market]`, 0‑space account)**
-  - Owned by the program.
-  - Only stores lamports; all accounting is done on `Market` and `UserStake`.
-
----
-
-### Instructions
-
-Program module is `prediction_market` (see `src/lib.rs`).
-
-- **`initialize_config(treasury, protocol_fee_bps, resolution_authority)`**
-  - Creates the `Config` PDA.
-  - Validates treasury and fee bounds.
-  - Sets resolution authority and unpauses the protocol.
-  - **Access control**: signer must match the program ID’s deployer wallet (by convention) or whatever your client uses; enforced via account constraints.
-
-- **`update_config(treasury?, protocol_fee_bps?, resolution_authority?, paused?)`**
-  - Partially updates config fields when `Some`.
-  - Can change treasury, fee, resolution authority, and pause/unpause.
-  - **Access control**: `config.authority` signer only.
-
-- **`create_market(market_id, match_id, over, ball, outcome_count, name)`**
-  - Seeds:
-    - `Market` PDA: `["market", market_id]`
-    - `Vault` PDA: `["vault", market]`
-  - Recomputes `expected = sha256(match_id || over_le || ball_le)` and **requires**:
-    - `market_id == expected` (otherwise `InvalidMarketId` error).
-  - Initializes the `Market` account, zeroes per‑outcome stakes, creates the 0‑space vault account via CPI, and emits a `CreateMarket` event.
-  - **Access control**: open to any payer; the economic protection relies on protocol rules, not whitelisting.
-
-- **`place_bet(outcome_index, amount)`**
-  - Checks:
-    - Config not paused.
-    - Market not resolved.
-    - `outcome_index < outcome_count`.
-    - `amount` within allowed range (constants).
-  - Creates or reuses the user’s `UserStake` PDA, transfers `amount` SOL from user to vault, and updates:
-    - `user_stake.stake_per_outcome[outcome_index] += amount`
-    - `user_stake.total_staked += amount`
-    - `market.total_stake_per_outcome[outcome_index] += amount`
-    - `market.total_stake += amount`
-  - Emits `BetPlaced` event.
-
-- **`resolve(outcome_index)`**
-  - Checks:
-    - Caller is `config.resolution_authority`.
-    - Market not already resolved.
-    - Outcome index is valid.
-  - Computes:
-    - `fee_amount = total_stake * protocol_fee_bps / 10_000`
-    - `pool_after_fee = total_stake - fee_amount`
-  - Transfers `fee_amount` from vault to `config.treasury` and stores:
-    - `resolved_outcome = Some(outcome_index)`
-    - `resolved_pool_after_fee = pool_after_fee`
-    - `resolved = true`
-  - Emits `MarketResolved` event.
-
-- **`claim()`**
-  - For the calling user’s `UserStake` PDA and the given market:
-    - Checks market is resolved.
-    - Checks `!user_stake.claimed`.
-    - Computes the user’s share:
-      - `Lw = market.total_stake_per_outcome[w]`
-      - `user = user_stake.stake_per_outcome[w]`
-      - `share = pool_after_fee * user / Lw`
-    - Transfers `share` SOL from vault to user.
-    - Marks `user_stake.claimed = true`.
-  - Emits `Claimed` event.
-
----
-
-### Events & Errors
-
-- **Events** (see `src/events.rs`):
-  - `CreateMarket` — emitted on market creation, includes IDs and metadata.
-  - `BetPlaced` — user, market, outcome, amount.
-  - `MarketResolved` — market, winning outcome, fee amount, pool after fee.
-  - `Claimed` — user, market, payout amount.
-
-- **Key errors** (see `src/error.rs`):
-  - `InvalidMarketId` — on‑chain hash check failed.
-  - `MarketAlreadyResolved`
-  - `MarketNotResolved`
-  - `AlreadyClaimed`
-  - `NotWinner`
-  - `BetAmountTooLow` / `BetAmountTooHigh`
-  - `ProtocolFeeTooHigh`
-  - `Unauthorized` (for config / resolve calls)
-
----
-
-### Development, Testing, Deployment
-
-**Prerequisites**
-
-- Rust + Cargo
+- Node.js
+- Yarn
 - Solana CLI
-- Anchor CLI
-- Node.js + npm (for TypeScript tests)
+- Anchor Framework
 
-**Install dependencies**
+### Installation
+
+1. Clone the repository:
 
 ```bash
-cd /root/sol-prediction-market/smart-contract
-npm install
+git clone https://github.com/rustjesty/solana-prediction-market-smart-contract
+cd solana-prediction-market-smart-contract
 ```
 
-**Build the program**
+2. Install dependencies:
+
+```bash
+yarn install
+```
+
+3. Build the program:
 
 ```bash
 anchor build
 ```
 
-**Run tests (TypeScript, using Mocha from `Anchor.toml`)**
+### Configuration
+
+Configure your project settings:
 
 ```bash
-anchor test --skip-deploy
-# or directly:
-npx ts-mocha -t 1000000 tests/*.ts
+yarn script config -e devnet -k <your-keypair-path> -r <your-rpc-url>
 ```
 
-The main test suite is in `tests/prediction_market.ts` and covers:
+### Usage Examples
 
-- Config initialization and updates.
-- Market creation uniqueness / canonical `market_id` hashing.
-- Betting flow and escrow accounting.
-- Resolve & claim payout and fee invariants.
-- Access control for resolve and claim, including non‑winner and double‑claim paths.
-
-**Deploy to devnet**
-
-`Anchor.toml` is already configured with:
-
-- `cluster = "devnet"`
-- `programs.devnet.prediction_market = "Hj24gW6VcCypDoZAGNKyYDKHPnFEqnhcdQu8mqDBKQiG"`
-
-To deploy:
+1. Create a new market:
 
 ```bash
-anchor deploy --provider.cluster devnet
+yarn script market -e devnet -k <your-keypair-path> -r <your-rpc-url>
 ```
 
-Make sure your `~/.config/solana/id.json` wallet is funded on devnet and matches the program ID in `lib.rs` if you are (re)deploying.
+2. Add liquidity to a market:
+
+```bash
+yarn script addlp -y <yes-token-address> -n <no-token-address> -a <amount> -e devnet -k <your-keypair-path> -r <your-rpc-url>
+```
+
+3. Trade positions:
+
+```bash
+yarn script swap -y <yes-token-address> -n <no-token-address> -a <amount> -s <style> -t <token-type> -e devnet -k <your-keypair-path> -r <your-rpc-url>
+```
+
+4. Withdraw liquidity:
+
+```bash
+yarn script withdraw -y <yes-token-address> -n <no-token-address> -a <amount> -e devnet -k <your-keypair-path> -r <your-rpc-url>
+```
+
+5. Resolve market:
+
+```bash
+yarn script resolution -y <yes-token-address> -n <no-token-address> -e devnet -k <your-keypair-path> -r <your-rpc-url>
+```
+
+
+
+## Keywords (SEO)
+
+- **Polymarket smart contract** – **Polymarket smart contract** on Solana; Polymarket-style **prediction market**.
+- **Prediction market smart contract** – **Prediction market smart contract** for create, trade, resolve; **prediction market Solana smart contract** in this repo.
+- **Prediction market** – **Prediction market** platform on Solana; inspired by **Polymarket**.
+- **Polymarket** – **Polymarket**-inspired **prediction market smart contract** on Solana.
+- **Polymarket Solana smart contract** – **Polymarket Solana smart contract** = this **prediction market smart contract** on Solana.
+- **Prediction market Solana smart contract** – **Prediction market Solana smart contract** built with Anchor; Yes/No tokens, liquidity, resolution.
+- **Polymarket EVM smart contract** / **Prediction market EVM smart contract** – Same **prediction market** logic can be implemented on EVM; this repo is Solana reference.
+- Related: polymarket smart contract, prediction market smart contract, polymarket, prediction market, polymarket solana, prediction market solana, polymarket evm, prediction market evm.
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
 
 ---
 
-### Integration Notes
-
-- **Frontend / backend** should:
-  - Derive `match_id` from an external cricket data provider (e.g. Sportradar) and turn it into a 32‑byte seed (or hash).
-  - Use the **same hashing scheme** as the program to precompute `market_id = sha256(match_id || over_le || ball_le)` off‑chain when calling `create_market`.
-  - Track markets, users’ open positions, and resolved outcomes off‑chain for rich UI, while relying on on‑chain data for final balances and security.
-
-- The program is intentionally **cricket‑only** in this implementation. Other sports can be implemented as separate programs following the same factory / escrow / resolution pattern.
+**Git repo About (copy for description):** Polymarket smart contract · Prediction market smart contract · Prediction market · Polymarket. Polymarket Solana smart contract and prediction market Solana smart contract on Solana (Anchor). Create, trade, resolve. Patterns for Polymarket EVM smart contract / prediction market EVM smart contract.
