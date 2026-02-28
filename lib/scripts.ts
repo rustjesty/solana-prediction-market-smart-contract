@@ -300,9 +300,24 @@ export const withdrawLiquidityTx = async (
     [Buffer.from(SEED_USERINFO), user.toBytes(), marketPda.toBytes()],
     program.programId
   );
-  console.log("🚀 ~ resolutionTx ~ userInfoPda:", userInfoPda.toBase58())
-  const userInfoAccount = await program.account.userInfo.fetch(userInfoPda);
-  console.log("🚀 ~ userInfoAccount:", userInfoAccount)
+  console.log("🚀 ~ resolutionTx ~ userInfoPda:", userInfoPda.toBase58());
+  let userInfoAccount;
+  try {
+    userInfoAccount = await program.account.userInfo.fetch(userInfoPda);
+  } catch {
+    throw new Error(
+      "WITHDRAWNOTLPERROR: You must add liquidity first before withdrawing. Run:\n" +
+        `  yarn script addlp -y ${yes_token.toBase58()} -n ${no_token.toBase58()} -a <amount>`
+    );
+  }
+  console.log("🚀 ~ userInfoAccount:", userInfoAccount);
+
+  if (!userInfoAccount.isLp) {
+    throw new Error(
+      "WITHDRAWNOTLPERROR: You must add liquidity first before withdrawing. Run:\n" +
+        `  yarn script addlp -y ${yes_token.toBase58()} -n ${no_token.toBase58()} -a ${amount}`
+    );
+  }
 
   const tx = await program.methods
     .withdrawLiquidity(new BN(amount))

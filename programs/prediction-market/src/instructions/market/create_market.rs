@@ -39,7 +39,7 @@ pub struct CreateMarket<'info> {
     #[account(
         init,
         payer = creator,
-        space = 8 + std::mem::size_of::<Market>(),
+        space = 8 + std::mem::size_of::<Market>() + 50 * std::mem::size_of::<LpInfo>(),
         seeds = [MARKET.as_bytes(), &yes_token.key().to_bytes(), &no_token.key().to_bytes()],
         bump
     )]

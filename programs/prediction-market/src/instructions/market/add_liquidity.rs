@@ -2,8 +2,9 @@ use crate::{
     constants::{CONFIG, GLOBAL, MARKET, USERINFO},
     errors::PredictionMarketError,
     state::{config::*, market::*},
+    utils::sol_transfer_from_user,
 };
-use anchor_lang::{prelude::*, system_program};
+use anchor_lang::{prelude::*, solana_program::sysvar::SysvarId, system_program};
 use anchor_spl::{
     associated_token::{self, AssociatedToken},
     token::{self, Mint, Token},
@@ -28,8 +29,11 @@ pub struct AddLiquidity<'info> {
 
     #[account(
         mut,
-        seeds = [MARKET.as_bytes(), &yes_token.key().to_bytes(), &no_token.key().to_bytes()], 
-        bump
+        seeds = [MARKET.as_bytes(), &yes_token.key().to_bytes(), &no_token.key().to_bytes()],
+        bump,
+        realloc = 8 + std::mem::size_of::<Market>() + 50 * std::mem::size_of::<LpInfo>(),
+        realloc::payer = user,
+        realloc::zero = false,
     )]
     market: Account<'info, Market>,
 
@@ -66,11 +70,34 @@ pub struct AddLiquidity<'info> {
     pub associated_token_program: Program<'info, AssociatedToken>,
 }
 
-impl<'info> AddLiquidity<'info> { 
+impl<'info> AddLiquidity<'info> {
     pub fn handler(&mut self, amount: u64) -> Result<()> {
-        //A decentralized prediction market platform built on Solana blockchain, inspired by Polymarket. This project enables users to create markets, trade positions, and resolve outcomes based on real-world events.    
-        // **Telegram**: [@Telegram](https://t.me/xAxon7)
-        // **Discord**: [@Discord](https://discord.com/users/1274339638668038187)
+        require!(amount > 0, PredictionMarketError::InvalidAmount);
+
+        // Transfer SOL from user to global vault
+        sol_transfer_from_user(
+            &self.user,
+            self.global_vault.to_account_info(),
+            &self.system_program,
+            amount,
+        )?;
+
+        // Update user_info - mark as LP
+        self.user_info.user = self.user.key();
+        self.user_info.is_lp = true;
+        self.user_info.is_initialized = true;
+
+        // Add to market LPs and update total
+        let lp_info = LpInfo {
+            user: self.user.key(),
+            sol_amount: amount,
+        };
+        self.market.lps.push(lp_info);
+        self.market.total_lp_amount = self
+            .market
+            .total_lp_amount
+            .checked_add(amount)
+            .ok_or(PredictionMarketError::OverflowOrUnderflowOccurred)?;
 
         Ok(())
     }

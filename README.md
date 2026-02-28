@@ -44,10 +44,11 @@ cd solana-prediction-market-smart-contract
 yarn install
 ```
 
-3. Build the program:
+3. Build and deploy the program:
 
 ```bash
 anchor build
+anchor deploy
 ```
 
 ## Configuration
@@ -60,6 +61,8 @@ yarn script config -e devnet -k <your-keypair-path> -r <your-rpc-url>
 
 ## Usage
 
+**Workflow order:** `config` → `market` → `addlp` → `swap` (optional) → `withdraw` → `resolution`
+
 ### Create a Market
 
 ```bash
@@ -68,17 +71,24 @@ yarn script market -e devnet -k <your-keypair-path> -r <your-rpc-url>
 
 ### Add Liquidity
 
+You must add liquidity before you can withdraw it.
+
 ```bash
 yarn script addlp -y <yes-token-address> -n <no-token-address> -a <amount> -e devnet -k <your-keypair-path> -r <your-rpc-url>
 ```
 
 ### Trade Positions
 
+- `-s` (style): `0` = buy, `1` = sell
+- `-t` (token-type): `0` = NO token, `1` = YES token
+
 ```bash
 yarn script swap -y <yes-token-address> -n <no-token-address> -a <amount> -s <style> -t <token-type> -e devnet -k <your-keypair-path> -r <your-rpc-url>
 ```
 
 ### Withdraw Liquidity
+
+Requires that you have added liquidity first via `addlp`.
 
 ```bash
 yarn script withdraw -y <yes-token-address> -n <no-token-address> -a <amount> -e devnet -k <your-keypair-path> -r <your-rpc-url>
@@ -93,6 +103,21 @@ yarn script resolution -y <yes-token-address> -n <no-token-address> -e devnet -k
 ## Example Transaction
 
 [Config transaction on Solscan (Devnet)](https://solscan.io/tx/3Ww7gCeEPWRkAG6iXgNhgr5EEy1WAbaRjBFbRrEBFRsQywFaeFLDciTD2VLN1oHdhKv5sW8UsvxFSA8ie1soW4w?cluster=custom&customUrl=https://api.devnet.solana.com)
+
+[Create market transaction on Solscan (Devnet)](https://solscan.io/tx/DACbRHBcfqhuwiEG25sRfYR7NBnyaYw6MZsAx1Mf82HWiPH69tbPE4ojSvJZyHxPeSTVEK9R8qFN4tvJRZuu4fY?cluster=custom&customUrl=https://api.devnet.solana.com)
+
+[Yes Token (Devnet)](https://solscan.io/token/9uamipGwBUiDYiDSq9UeMpKFCRbMhd2cewxU7SUYyaKV?cluster=custom&customUrl=https://api.devnet.solana.com)
+
+[No Token (Devnet)](https://solscan.io/token/46QbL8d5sXqP2MuhQwx9fp9HbinxghQXZ9mEcSpR85Pf?cluster=custom&customUrl=https://api.devnet.solana.com)
+
+[Add Liquidity(Devnet)](https://solscan.io/tx/4YsVBzHuur9GSVz5VSe8yLBkY8VQniYqrYqUv3AvTRjENr979d98Hzg8x8iEFnBqGqNiwHhDDEwFjMbjMg4629bR?cluster=custom&customUrl=https://api.devnet.solana.com)
+<!-- 
+yarn script addlp -y 9uamipGwBUiDYiDSq9UeMpKFCRbMhd2cewxU7SUYyaKV -n 46QbL8d5sXqP2MuhQwx9fp9HbinxghQXZ9mEcSpR85Pf -a 2000000000
+yarn script withdraw -y 9uamipGwBUiDYiDSq9UeMpKFCRbMhd2cewxU7SUYyaKV -n 46QbL8d5sXqP2MuhQwx9fp9HbinxghQXZ9mEcSpR85Pf -a 2000000000
+yarn script swap -y A5LmU5ZciBaJZKT9u59tasTDNrdMpGAo4WkGhmTkoBBA -n 9jnqZhBjuAjmj6qwmGBAm7ftok437prs6WkgcfLnKzrr -a 2000000000 -s 0 -t 1
+yarn script resolution -y A5LmU5ZciBaJZKT9u59tasTDNrdMpGAo4WkGhmTkoBBA -n 9jnqZhBjuAjmj6qwmGBAm7ftok437prs6WkgcfLnKzrr
+ -->
+
 
 ## Contact
 
