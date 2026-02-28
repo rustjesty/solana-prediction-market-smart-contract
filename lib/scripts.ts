@@ -1,12 +1,8 @@
 import { BN, Program } from "@coral-xyz/anchor";
 import {
-  ComputeBudgetProgram,
   Connection,
   Keypair,
   PublicKey,
-  SystemProgram,
-  SYSVAR_RENT_PUBKEY,
-  Transaction,
 } from "@solana/web3.js";
 
 import { PredictionMarket } from "../target/types/prediction_market";

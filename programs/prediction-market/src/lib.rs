@@ -1,4 +1,10 @@
+//! # Prediction Market Program
+//!
+//! A decentralized prediction market on Solana, inspired by Polymarket.
+//! Enables creation of binary outcome markets, liquidity provision, and trading.
+
 use anchor_lang::prelude::*;
+
 pub mod constants;
 pub mod errors;
 pub mod events;
@@ -10,7 +16,6 @@ use instructions::{
     accept_authority::*, add_liquidity::*, configure::*, create_market::*, mint_no_token::*,
     nominate_authority::*, resolution::*, swap::*, withdraw_liquidity::*,
 };
-
 use state::config::*;
 use state::market::*;
 
@@ -18,30 +23,26 @@ declare_id!("EcncSdXCTy2RnpnZPXa1VPij1tjbS6wSjrwM47vFEN9e");
 
 #[program]
 pub mod prediction_market {
-    // use crate::{instruction::AddLiquidity, instructions::resolution::Resolution};
-
     use super::*;
 
-    //  called by admin to set global config
-    //  need to check the signer is authority
+    /// Sets global protocol configuration. Callable only by the current authority.
     pub fn configure(ctx: Context<Configure>, new_config: Config) -> Result<()> {
-        msg!("configure: {:#?}", new_config);
         ctx.accounts.handler(new_config, ctx.bumps.config)
     }
 
-    //  Admin can hand over admin role
+    /// Nominates a new admin. The pending admin must call `accept_authority` to complete.
     pub fn nominate_authority(ctx: Context<NominateAuthority>, new_admin: Pubkey) -> Result<()> {
         ctx.accounts.process(new_admin)
     }
 
-    //  Pending admin should accept the admin role
+    /// Accepts the admin role. Callable only by the nominated pending authority.
     pub fn accept_authority(ctx: Context<AcceptAuthority>) -> Result<()> {
         ctx.accounts.process()
     }
 
+    /// Mints the NO token for a market with metadata. Creates global ATA and sets immutable mint.
     pub fn mint_no_token(
         ctx: Context<MintNoToken>,
-        // metadata
         no_symbol: String,
         no_uri: String,
     ) -> Result<()> {
@@ -49,10 +50,12 @@ pub mod prediction_market {
             .handler(no_symbol, no_uri, ctx.bumps.global_vault)
     }
 
+    /// Creates a new prediction market with YES token and market account.
     pub fn create_market(ctx: Context<CreateMarket>, params: CreateMarketParams) -> Result<()> {
         ctx.accounts.handler(params, ctx.bumps.global_vault)
     }
 
+    /// Swaps SOL for tokens or tokens for SOL. Direction: 0 = buy, 1 = sell. Token type: 0 = NO, 1 = YES.
     pub fn swap(
         ctx: Context<Swap>,
         amount: u64,
@@ -69,6 +72,7 @@ pub mod prediction_market {
         )
     }
 
+    /// Resolves the market and distributes payouts to winning token holders.
     pub fn resolution(
         ctx: Context<Resolution>,
         yes_amount: u64,
@@ -85,10 +89,12 @@ pub mod prediction_market {
         )
     }
 
+    /// Adds liquidity to the market. Transfers SOL to global vault and marks user as LP.
     pub fn add_liquidity(ctx: Context<AddLiquidity>, amount: u64) -> Result<()> {
         ctx.accounts.handler(amount)
     }
 
+    /// Withdraws liquidity. Callable only by users who have added liquidity via `add_liquidity`.
     pub fn withdraw_liquidity(ctx: Context<WithdrawLiquidity>, amount: u64) -> Result<()> {
         ctx.accounts.handler(amount, ctx.bumps.global_vault)
     }
