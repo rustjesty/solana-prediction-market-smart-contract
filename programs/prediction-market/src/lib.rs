@@ -14,7 +14,7 @@ use instructions::{
 use state::config::*;
 use state::market::*;
 
-declare_id!("6cfes8FP674uViNZf8wtJVNdYSuRdGfhHmoF8ge5cTvc");
+declare_id!("6xdiWvJp94XkvBT6nC6iJaM6srhpsFV1Ka843XA1YjNd");
 
 #[program]
 pub mod prediction_market {
