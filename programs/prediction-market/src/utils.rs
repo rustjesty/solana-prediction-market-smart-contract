@@ -1,6 +1,7 @@
 use crate::*;
 use anchor_spl::token::{self, Token};
 use solana_program::program::{invoke, invoke_signed};
+use solana_program::system_instruction;
 use std::ops::{Div, Mul};
 
 pub fn convert_to_float(value: u64, decimals: u8) -> f64 {
@@ -17,7 +18,7 @@ pub fn sol_transfer_from_user<'info>(
     system_program: &Program<'info, System>,
     amount: u64,
 ) -> Result<()> {
-    let ix = solana_program::system_instruction::transfer(signer.key, destination.key, amount);
+    let ix = system_instruction::transfer(signer.key, destination.key, amount);
     invoke(
         &ix,
         &[
@@ -81,7 +82,7 @@ pub fn sol_transfer_with_signer<'info>(
     signers_seeds: &[&[&[u8]]],
     amount: u64,
 ) -> Result<()> {
-    let ix = solana_program::system_instruction::transfer(source.key, destination.key, amount);
+    let ix = system_instruction::transfer(source.key, destination.key, amount);
     invoke_signed(
         &ix,
         &[source, destination, system_program.to_account_info()],

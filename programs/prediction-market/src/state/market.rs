@@ -193,12 +193,12 @@ impl<'info> MarketAccount<'info> for Account<'info, Market> {
 
     fn get_tokens_for_buy_sol(&self, change_amount: u64, token_type: u8) -> Option<BuyResult> {
         Some(BuyResult {
-            token_amount,
+            token_amount: 0,
             change_amount,
-            current_yes_reserves,
-            current_no_reserves,
-            new_yes_reserves,
-            new_no_reserves,
+            current_yes_reserves: self.real_yes_token_reserves,
+            current_no_reserves: self.real_no_token_reserves,
+            new_yes_reserves: self.real_yes_token_reserves,
+            new_no_reserves: self.real_no_token_reserves,
         })
     }
 
@@ -218,12 +218,12 @@ impl<'info> MarketAccount<'info> for Account<'info, Market> {
 
     fn get_tokens_for_sell_sol(&self, change_amount: u64, token_type: u8) -> Option<SellResult> {
         Some(SellResult {
-            token_amount,
+            token_amount: 0,
             change_amount,
-            current_yes_reserves,
-            current_no_reserves,
-            new_yes_reserves,
-            new_no_reserves,
+            current_yes_reserves: self.real_yes_token_reserves,
+            current_no_reserves: self.real_no_token_reserves,
+            new_yes_reserves: self.real_yes_token_reserves,
+            new_no_reserves: self.real_no_token_reserves,
         })
     }
 
