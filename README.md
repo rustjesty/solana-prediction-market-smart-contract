@@ -119,7 +119,7 @@ yarn script resolution -y <yes-token-address> -n <no-token-address> -e devnet -k
 For questions or custom implementations:
 
 - [Discord](https://discordapp.com/users/645723465831415817)
-- [Telegram](https://t.me/soljesty)
+- [Telegram](https://t.me/rustjesty)
 
 ## Contributing
 
